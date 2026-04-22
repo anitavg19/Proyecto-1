@@ -15,18 +15,18 @@ from matplotlib.widgets import Slider, Button
 # ──────────────────────────────────────────────
 #  PARÁMETROS DEL ROBOT
 # ──────────────────────────────────────────────
-L1 = 1.5   # Longitud eslabón 1 (boom)
+L1 = 2.0   # Longitud eslabón 1 (boom)
 L2 = 1.0   # Longitud eslabón 2 (antebrazo)
 L3 = 0.6   # Longitud eslabón 3 (garra)
 
 BASE_X = 0.0
-BASE_Y = 2.5  # Base elevada sobre la cinta
+BASE_Y = 2.8  # Base elevada sobre la cinta
 
 # Posiciones de los contenedores
 CONTAINERS = {
-    "Plástico":  (-2.8, 0.0, "#2196F3"),
+    "Plástico":  (-2.5, 0.0, "#2196F3"),
     "Vidrio":    ( 0.0, 0.0, "#4CAF50"),
-    "Metal":     ( 2.8, 0.0, "#FF9800"),
+    "Metal":     ( 2.5, 0.0, "#FF9800"),
 }
 
 
@@ -211,4 +211,5 @@ btn_reset.on_clicked(reset)
 
 actualizar(None)
 
-plt.show()
+plt.show(
+

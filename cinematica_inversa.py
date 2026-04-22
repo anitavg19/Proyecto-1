@@ -16,12 +16,12 @@ import matplotlib.patheffects as pe
 # ──────────────────────────────────────────────
 #  PARÁMETROS DEL ROBOT
 # ──────────────────────────────────────────────
-L1 = 1.5
+L1 = 2.0
 L2 = 1.0
 L3 = 0.6
 
 BASE_X = 0.0
-BASE_Y = 2.5
+BASE_Y = 2.8
 
 R_MAX = L1 + L2 + L3          # Alcance máximo
 R_MIN = abs(L1 - L2 - L3)     # Alcance mínimo
@@ -30,9 +30,9 @@ R_MIN = abs(L1 - L2 - L3)     # Alcance mínimo
 PHI_DEFAULT = np.radians(-90)
 
 CONTAINERS = {
-    "Plástico": (-2.8, 0.0),
+    "Plástico": (-2.5, 0.0),
     "Vidrio":   ( 0.0, 0.0),
-    "Metal":    ( 2.8, 0.0),
+    "Metal":    ( 2.5, 0.0),
 }
 CONTAINER_COLORS = {
     "Plástico": "#2196F3",
@@ -263,7 +263,7 @@ def actualizar(val):
                         color="#BDBDBD", linewidth=2, linestyle="--",
                         alpha=0.5, zorder=2)
 
-        estado = "Solucion encontrada"
+        estado = "[OK] Solución encontrada"
         color_info = "#E8F5E9"
         color_borde = "#388E3C"
         info = (f"{estado}\n\n"
@@ -281,7 +281,7 @@ def actualizar(val):
     else:
         motivo = "radio máximo superado" if status == "fuera_alcance_max" \
                  else "radio mínimo no alcanzado"
-        estado = f"Sin solucion\n({motivo})"
+        estado = f"[X] Sin solución\n({motivo})"
         color_info = "#FFEBEE"
         color_borde = "#C62828"
         info = (f"{estado}\n\n"

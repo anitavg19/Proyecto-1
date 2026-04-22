@@ -147,3 +147,4 @@ El sistema puede clasificar aproximadamente **15–20 ítems por minuto** en sim
 - El workspace se visualiza en `cinematica_inversa.py` como la zona de puntos alcanzables
 - La IK soporta dos configuraciones: **codo arriba** y **codo abajo**
 - Puntos fuera del workspace muestran mensaje de error y no mueven el robot
+

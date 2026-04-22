@@ -11,6 +11,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib.patches as patches
 import matplotlib.animation as animation
+import matplotlib.patheffects as pe
 from matplotlib.widgets import Button, Slider
 import random
 
@@ -238,9 +239,9 @@ def dibujar_escena():
                 color=colores_esl[i],
                 linewidth=grosor_esl[i],
                 solid_capstyle="round",
-                path_effects=[plt.matplotlib.patheffects.SimpleLineShadow(
+                path_effects=[pe.SimpleLineShadow(
                     offset=(1,-1), shadow_color="#000", alpha=0.3),
-                    plt.matplotlib.patheffects.Normal()],
+                    pe.Normal()],
                 zorder=5)
 
     for i, (px, py) in enumerate(puntos[:-1]):

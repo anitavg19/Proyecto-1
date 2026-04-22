@@ -8,7 +8,6 @@ Curso: Robótica Avanzada — Universidad de Costa Rica
 """
 
 import numpy as np
-import matplotlib
 import matplotlib.pyplot as plt
 import matplotlib.patches as patches
 import matplotlib.animation as animation
@@ -151,9 +150,9 @@ ax_btn_stop  = fig.add_axes([0.21, 0.08, 0.14, 0.06])
 ax_btn_reset = fig.add_axes([0.37, 0.08, 0.14, 0.06])
 ax_vel       = fig.add_axes([0.58, 0.10, 0.18, 0.03])
 
-btn_start = Button(ax_btn_start, "Iniciar",   color="#1B5E20", hovercolor="#2E7D32")
-btn_stop  = Button(ax_btn_stop,  "Pausar",   color="#B71C1C", hovercolor="#C62828")
-btn_reset = Button(ax_btn_reset, "Reiniciar", color="#0D47A1", hovercolor="#1565C0")
+btn_start = Button(ax_btn_start, "▶ Iniciar",   color="#1B5E20", hovercolor="#2E7D32")
+btn_stop  = Button(ax_btn_stop,  "⏸ Pausar",   color="#B71C1C", hovercolor="#C62828")
+btn_reset = Button(ax_btn_reset, "⟳ Reiniciar", color="#0D47A1", hovercolor="#1565C0")
 slider_vel = Slider(ax_vel, "Velocidad", 0.5, 3.0, valinit=1.0, color="#7B1FA2")
 
 for btn in [btn_start, btn_stop, btn_reset]:
@@ -271,12 +270,12 @@ def dibujar_escena():
 
     # Título
     fase_txt = {
-        "espera": "Esperando item",
-        "ir_recoger": "Desplazandose a recoger",
-        "recoger": "Recogiendo item",
-        "ir_contenedor": "Transportando a contenedor",
-        "depositar": "Depositando",
-        "volver": "Volviendo a home",
+        "espera": "⏳ Esperando ítem",
+        "ir_recoger": "🔄 Desplazándose a recoger",
+        "recoger": "📦 Recogiendo ítem",
+        "ir_contenedor": "🚀 Transportando a contenedor",
+        "depositar": "✅ Depositando",
+        "volver": "🏠 Volviendo a home",
     }.get(estado["fase"], "")
 
     ax.set_title(f"Brazo Clasificador de Reciclaje  |  {fase_txt}",
@@ -331,7 +330,7 @@ def actualizar_panel():
     ax_panel.text(0.5, 0.18, "Producción y Consumo\nResponsables", color="#FFF9C4",
                   fontsize=8, ha="center", transform=ax_panel.transAxes)
 
-    estado_sim = "ACTIVO" if estado["activo"] else "PAUSADO"
+    estado_sim = "▶ ACTIVO" if estado["activo"] else "⏸ PAUSADO"
     color_est  = "#69F0AE" if estado["activo"] else "#FF8A65"
     ax_panel.text(0.5, 0.07, estado_sim, color=color_est,
                   fontsize=10, fontweight="bold", ha="center",
@@ -491,12 +490,8 @@ for _ in range(3):
     item["x"] = random.uniform(-4.5, -1.0)
     estado["items_cinta"].append(item)
 
-if matplotlib.get_backend().lower().startswith("agg"):
-    ani = None
-    animar(0)
-else:
-    ani = animation.FuncAnimation(fig, animar, interval=50,
-                                  blit=False, cache_frame_data=False)
+ani = animation.FuncAnimation(fig, animar, interval=50,
+                               blit=False, cache_frame_data=False)
 
 dibujar_escena()
 actualizar_panel()
@@ -506,3 +501,5 @@ fig.text(0.5, 0.005,
          ha="center", color="#546E7A", fontsize=8)
 
 plt.show()
+
+

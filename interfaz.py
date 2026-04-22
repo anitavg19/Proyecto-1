@@ -8,6 +8,7 @@ Curso: Robótica Avanzada — Universidad de Costa Rica
 """
 
 import numpy as np
+import matplotlib
 import matplotlib.pyplot as plt
 import matplotlib.patches as patches
 import matplotlib.animation as animation
@@ -18,20 +19,20 @@ import random
 # ──────────────────────────────────────────────
 #  PARÁMETROS DEL ROBOT
 # ──────────────────────────────────────────────
-L1, L2, L3 = 1.5, 1.0, 0.6
-BASE_X, BASE_Y = 0.0, 2.5
+L1, L2, L3 = 2.0, 1.0, 0.6
+BASE_X, BASE_Y = 0.0, 2.8
 PHI_ABAJO = np.radians(-90)      # Efector apuntando al suelo
 
 # Posiciones de detección e ítems
 DETECTION_X    =  0.0            # Donde el brazo recoge el ítem
-DETECTION_Y    = -0.05
-CONVEYOR_Y     = -0.05
+DETECTION_Y    =  0.0
+CONVEYOR_Y     =  0.0
 CONVEYOR_SPEED =  0.04
 
 CONTAINERS = {
-    "Plástico": {"x": -2.8, "y": 0.0,  "color": "#2196F3", "count": 0},
+    "Plástico": {"x": -2.5, "y": 0.0,  "color": "#2196F3", "count": 0},
     "Vidrio":   {"x":  0.0, "y": 0.0,  "color": "#4CAF50", "count": 0},
-    "Metal":    {"x":  2.8, "y": 0.0,  "color": "#FF9800", "count": 0},
+    "Metal":    {"x":  2.5, "y": 0.0,  "color": "#FF9800", "count": 0},
 }
 
 ITEM_COLORS = {
@@ -150,9 +151,9 @@ ax_btn_stop  = fig.add_axes([0.21, 0.08, 0.14, 0.06])
 ax_btn_reset = fig.add_axes([0.37, 0.08, 0.14, 0.06])
 ax_vel       = fig.add_axes([0.58, 0.10, 0.18, 0.03])
 
-btn_start = Button(ax_btn_start, "▶ Iniciar",   color="#1B5E20", hovercolor="#2E7D32")
-btn_stop  = Button(ax_btn_stop,  "⏸ Pausar",   color="#B71C1C", hovercolor="#C62828")
-btn_reset = Button(ax_btn_reset, "⟳ Reiniciar", color="#0D47A1", hovercolor="#1565C0")
+btn_start = Button(ax_btn_start, "Iniciar",   color="#1B5E20", hovercolor="#2E7D32")
+btn_stop  = Button(ax_btn_stop,  "Pausar",   color="#B71C1C", hovercolor="#C62828")
+btn_reset = Button(ax_btn_reset, "Reiniciar", color="#0D47A1", hovercolor="#1565C0")
 slider_vel = Slider(ax_vel, "Velocidad", 0.5, 3.0, valinit=1.0, color="#7B1FA2")
 
 for btn in [btn_start, btn_stop, btn_reset]:
@@ -239,9 +240,8 @@ def dibujar_escena():
                 color=colores_esl[i],
                 linewidth=grosor_esl[i],
                 solid_capstyle="round",
-                path_effects=[pe.SimpleLineShadow(
-                    offset=(1,-1), shadow_color="#000", alpha=0.3),
-                    pe.Normal()],
+                path_effects=[pe.SimpleLineShadow(offset=(1,-1), shadow_color="#000", alpha=0.3),
+                pe.Normal()],
                 zorder=5)
 
     for i, (px, py) in enumerate(puntos[:-1]):
@@ -271,12 +271,12 @@ def dibujar_escena():
 
     # Título
     fase_txt = {
-        "espera": "⏳ Esperando ítem",
-        "ir_recoger": "🔄 Desplazándose a recoger",
-        "recoger": "📦 Recogiendo ítem",
-        "ir_contenedor": "🚀 Transportando a contenedor",
-        "depositar": "✅ Depositando",
-        "volver": "🏠 Volviendo a home",
+        "espera": "Esperando item",
+        "ir_recoger": "Desplazandose a recoger",
+        "recoger": "Recogiendo item",
+        "ir_contenedor": "Transportando a contenedor",
+        "depositar": "Depositando",
+        "volver": "Volviendo a home",
     }.get(estado["fase"], "")
 
     ax.set_title(f"Brazo Clasificador de Reciclaje  |  {fase_txt}",
@@ -331,7 +331,7 @@ def actualizar_panel():
     ax_panel.text(0.5, 0.18, "Producción y Consumo\nResponsables", color="#FFF9C4",
                   fontsize=8, ha="center", transform=ax_panel.transAxes)
 
-    estado_sim = "▶ ACTIVO" if estado["activo"] else "⏸ PAUSADO"
+    estado_sim = "ACTIVO" if estado["activo"] else "PAUSADO"
     color_est  = "#69F0AE" if estado["activo"] else "#FF8A65"
     ax_panel.text(0.5, 0.07, estado_sim, color=color_est,
                   fontsize=10, fontweight="bold", ha="center",
@@ -342,9 +342,11 @@ def paso_simulacion():
     vel = estado["velocidad"]
     total_p = max(8, int(25 / vel))
 
-    # Mover ítems en la cinta
+    # Pausar cinta cuando el brazo está ocupado
+    cinta_activa = estado["fase"] == "espera"
     for item in estado["items_cinta"]:
-        item["x"] += CONVEYOR_SPEED * vel
+        if cinta_activa:
+            item["x"] += CONVEYOR_SPEED * vel
 
     # Eliminar ítems que salen de pantalla
     estado["items_cinta"] = [i for i in estado["items_cinta"] if i["x"] < 5.5]
@@ -366,7 +368,12 @@ def paso_simulacion():
                 estado["paso"] = 0
                 estado["inicio_ang"] = estado["angulos"]
                 sol = ik(DETECTION_X, DETECTION_Y + 0.3)
-                estado["target_ang"] = sol if sol else HOME_ANGLES
+                if sol:
+                    estado["target_ang"] = sol
+                else:
+                    # Intentar codo abajo si codo arriba falla
+                    sol2 = ik(DETECTION_X, DETECTION_Y + 0.3, codo_arriba=False)
+                    estado["target_ang"] = sol2 if sol2 else HOME_ANGLES
                 estado["total_pasos"] = total_p
                 break
 
@@ -386,8 +393,10 @@ def paso_simulacion():
         if estado["paso"] >= estado["total_pasos"]:
             tipo = estado["item_actual"]["tipo"]
             cx = CONTAINERS[tipo]["x"]
-            cy = CONTAINERS[tipo]["y"] + 0.5
+            cy = CONTAINERS[tipo]["y"] + 1.2
             sol = ik(cx, cy)
+            if not sol:
+                sol = ik(cx, cy, codo_arriba=False)
             estado["fase"] = "ir_contenedor"
             estado["paso"] = 0
             estado["inicio_ang"] = estado["angulos"]
@@ -482,8 +491,12 @@ for _ in range(3):
     item["x"] = random.uniform(-4.5, -1.0)
     estado["items_cinta"].append(item)
 
-ani = animation.FuncAnimation(fig, animar, interval=50,
-                               blit=False, cache_frame_data=False)
+if matplotlib.get_backend().lower().startswith("agg"):
+    ani = None
+    animar(0)
+else:
+    ani = animation.FuncAnimation(fig, animar, interval=50,
+                                  blit=False, cache_frame_data=False)
 
 dibujar_escena()
 actualizar_panel()

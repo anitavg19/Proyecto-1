@@ -263,7 +263,7 @@ def actualizar(val):
                         color="#BDBDBD", linewidth=2, linestyle="--",
                         alpha=0.5, zorder=2)
 
-        estado = "✅ Solución encontrada"
+        estado = "Solucion encontrada"
         color_info = "#E8F5E9"
         color_borde = "#388E3C"
         info = (f"{estado}\n\n"
@@ -281,7 +281,7 @@ def actualizar(val):
     else:
         motivo = "radio máximo superado" if status == "fuera_alcance_max" \
                  else "radio mínimo no alcanzado"
-        estado = f"❌ Sin solución\n({motivo})"
+        estado = f"Sin solucion\n({motivo})"
         color_info = "#FFEBEE"
         color_borde = "#C62828"
         info = (f"{estado}\n\n"

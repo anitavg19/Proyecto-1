@@ -131,3 +131,88 @@ Generó el panel lateral con `add_axes` y las barras con `FancyBboxPatch`. El es
 ### Aprendizaje clave:
 > Copilot es un acelerador, no un sustituto. Los mejores resultados se obtuvieron cuando teníamos claro **qué queríamos** matemáticamente y solo necesitábamos traducirlo a código. Cuando el problema no estaba bien definido en nuestra cabeza, las sugerencias de Copilot también eran vagas.
 
+---
+
+## Prompt 6 — Corrección de parámetros para alcance del workspace
+
+**Archivo:** `interfaz.py`
+
+**Problema detectado:**
+El brazo no llegaba al contenedor de Plástico (izquierda). La distancia desde la base hasta el contenedor era ~3.44 m pero el brazo solo alcanzaba 3.1 m con L1=1.5.
+
+**Prompt utilizado:**
+```
+The robot arm cannot reach the left container at x=-2.8. 
+The max reach is L1+L2+L3=3.1m but the distance is ~3.44m.
+Suggest new link lengths or base position to make all three 
+containers reachable while keeping the robot realistic.
+```
+
+**Resultado de Copilot:**
+Sugirió aumentar L1 a 2.0 m y ajustar la base a (0, 2.8). También recomendó mover los contenedores a ±2.5 para dar margen de alcance cómodo.
+
+**¿Ayudó?** ✅ Sí — el análisis de workspace fue correcto y resolvió el problema.
+
+**¿Dónde falló?** ⚠️ No mencionó que también había que actualizar cinematica_directa.py y cinematica_inversa.py con los mismos parámetros para mantener consistencia entre archivos.
+
+---
+
+## Prompt 7 — Corrección de importación de patheffects
+
+**Archivo:** `interfaz.py`
+
+**Problema detectado:**
+Al correr el script en Windows aparecía: `AttributeError: module 'matplotlib' has no attribute 'patheffects'`
+
+**Prompt utilizado:**
+```
+Fix this error in interfaz.py: 
+AttributeError: module matplotlib has no attribute patheffects.
+The code uses plt.matplotlib.patheffects.SimpleLineShadow 
+and plt.matplotlib.patheffects.Normal
+```
+
+**Resultado de Copilot:**
+Identificó que el error era porque `plt.matplotlib` no expone `patheffects` como atributo. La corrección fue agregar `import matplotlib.patheffects as pe` al inicio del archivo y reemplazar todas las referencias.
+
+**¿Ayudó?** ✅ Sí — diagnóstico correcto en el primer intento.
+
+**¿Dónde falló?** ⚠️ El código original que Copilot generó en el Prompt 3 usaba la sintaxis incorrecta `plt.matplotlib.patheffects`, lo que causó este bug posteriormente. Es un ejemplo de error que Copilot introdujo y luego tuvo que corregir.
+
+---
+
+## Prompt 8 — Pausa de cinta transportadora
+
+**Archivo:** `interfaz.py`
+
+**Problema detectado:**
+Mientras el brazo recogía y transportaba un ítem, los demás ítems de la cinta seguían moviéndose y pasaban la zona de detección sin ser clasificados.
+
+**Prompt utilizado:**
+```
+In interfaz.py, items on the conveyor keep moving while the robot 
+is busy picking and placing. This causes items to escape without 
+being classified. Pause the conveyor movement when the robot is 
+not in the waiting phase.
+```
+
+**Resultado de Copilot:**
+Sugirió agregar una variable `cinta_activa = estado["fase"] == "espera"` y condicionar el movimiento de los ítems a esa variable.
+
+**¿Ayudó?** ✅ Sí — solución limpia y mínima, una sola línea de cambio.
+
+**¿Dónde falló?** ⚠️ No consideró que en una planta real la cinta no se detiene — lo correcto sería un buffer de espera. Para efectos de simulación la pausa fue aceptable.
+
+---
+
+## 🔍 Reflexión General Actualizada
+
+### Errores introducidos por Copilot que luego hubo que corregir:
+- Generó `plt.matplotlib.patheffects` (inválido) → se corrigió con import directo
+- No validó casos límite de `arccos` → se añadió `np.clip()` manualmente
+- Posicionó contenedores fuera del workspace del brazo → se recalcularon parámetros
+
+### Conclusión:
+Copilot aceleró el desarrollo pero introdujo al menos 3 bugs que requirieron depuración manual. El flujo real fue: Copilot genera estructura → equipo prueba → equipo corrige → Copilot ayuda a corregir. Nunca fue un proceso de aceptar código sin revisión.
+
+
